@@ -1,0 +1,70 @@
+<svg width="520" height="320" viewBox="0 0 520 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Diagram pemeriksaan tubuh</title>
+  <desc id="desc">Siluet tubuh manusia tampak depan, samping kiri, samping kanan, dan belakang untuk referensi pemeriksaan fisioterapi.</desc>
+
+  <defs>
+    <linearGradient id="panel" x1="0" y1="0" x2="520" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FAFC"/>
+      <stop offset="1" stop-color="#EEF6FF"/>
+    </linearGradient>
+    <linearGradient id="bodyFill" x1="0" y1="34" x2="0" y2="252" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FBFF"/>
+      <stop offset="1" stop-color="#EAF4FF"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-15%" width="140%" height="135%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#1E3A8A" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect x="1" y="1" width="518" height="318" rx="24" fill="url(#panel)" stroke="#DDE8F3" stroke-width="2"/>
+  <rect x="28" y="24" width="464" height="252" rx="22" fill="#FFFFFF" fill-opacity="0.62" stroke="#D8E4F0"/>
+
+  <g filter="url(#softShadow)">
+    <g stroke="#8EA0BA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="url(#bodyFill)">
+      <g transform="translate(104 36)">
+        <path d="M0 6C12 6 21 15 21 28C21 42 12 53 0 53C-12 53 -21 42 -21 28C-21 15 -12 6 0 6Z"/>
+        <path d="M-13 57C-11 65 -7 70 0 70C7 70 11 65 13 57"/>
+        <path d="M-34 85C-25 72 -13 66 0 66C13 66 25 72 34 85C41 96 45 111 49 129L57 164C58 171 55 176 49 177C44 178 41 175 39 169L29 130C27 152 24 174 19 195L13 244H2L0 207L-2 244H-13L-19 195C-24 174 -27 152 -29 130L-39 169C-41 175 -44 178 -49 177C-55 176 -58 171 -57 164L-49 129C-45 111 -41 96 -34 85Z"/>
+        <path d="M-25 90C-10 84 10 84 25 90"/>
+        <path d="M-17 105C-9 111 9 111 17 105"/>
+        <path d="M-11 121C-8 142 -5 162 0 181C5 162 8 142 11 121"/>
+        <path d="M-21 202H21"/>
+        <path d="M-13 244H-2M2 244H13"/>
+        <text x="0" y="268" text-anchor="middle" fill="#64748B" stroke="none" font-family="Arial, sans-serif" font-size="12" font-weight="700">DEPAN</text>
+      </g>
+
+      <g transform="translate(220 36)">
+        <path d="M1 7C13 7 22 17 21 31C20 45 11 55 -1 54C-12 53 -20 43 -20 30C-20 17 -11 7 1 7Z"/>
+        <path d="M-8 58C-6 66 -2 70 5 70C9 70 13 68 16 64"/>
+        <path d="M-12 70C8 72 22 86 26 107L31 139C32 146 29 151 24 152C20 153 17 150 16 145L12 126C13 150 15 171 20 194L24 244H12L6 205L3 161L-5 204L-9 244H-21L-17 198C-14 176 -15 154 -18 130L-23 107C-25 94 -22 80 -12 70Z"/>
+        <path d="M3 84C12 102 15 122 14 146"/>
+        <path d="M11 151C11 168 14 184 18 200"/>
+        <path d="M-8 244H8"/>
+        <text x="0" y="268" text-anchor="middle" fill="#64748B" stroke="none" font-family="Arial, sans-serif" font-size="12" font-weight="700">KIRI</text>
+      </g>
+
+      <g transform="translate(300 36) scale(-1 1)">
+        <path d="M1 7C13 7 22 17 21 31C20 45 11 55 -1 54C-12 53 -20 43 -20 30C-20 17 -11 7 1 7Z"/>
+        <path d="M-8 58C-6 66 -2 70 5 70C9 70 13 68 16 64"/>
+        <path d="M-12 70C8 72 22 86 26 107L31 139C32 146 29 151 24 152C20 153 17 150 16 145L12 126C13 150 15 171 20 194L24 244H12L6 205L3 161L-5 204L-9 244H-21L-17 198C-14 176 -15 154 -18 130L-23 107C-25 94 -22 80 -12 70Z"/>
+        <path d="M3 84C12 102 15 122 14 146"/>
+        <path d="M11 151C11 168 14 184 18 200"/>
+        <path d="M-8 244H8"/>
+        <text x="0" y="268" transform="scale(-1 1)" text-anchor="middle" fill="#64748B" stroke="none" font-family="Arial, sans-serif" font-size="12" font-weight="700">KANAN</text>
+      </g>
+
+      <g transform="translate(416 36)">
+        <path d="M0 6C12 6 21 15 21 28C21 42 12 53 0 53C-12 53 -21 42 -21 28C-21 15 -12 6 0 6Z"/>
+        <path d="M-13 57C-11 65 -7 70 0 70C7 70 11 65 13 57"/>
+        <path d="M-34 85C-25 72 -13 66 0 66C13 66 25 72 34 85C41 96 45 111 49 129L57 164C58 171 55 176 49 177C44 178 41 175 39 169L29 130C27 152 24 174 19 195L13 244H2L0 207L-2 244H-13L-19 195C-24 174 -27 152 -29 130L-39 169C-41 175 -44 178 -49 177C-55 176 -58 171 -57 164L-49 129C-45 111 -41 96 -34 85Z"/>
+        <path d="M-25 90C-12 97 12 97 25 90"/>
+        <path d="M0 84V183"/>
+        <path d="M-18 115C-9 122 9 122 18 115"/>
+        <path d="M-14 143C-7 150 7 150 14 143"/>
+        <path d="M-21 202H21"/>
+        <path d="M-13 244H-2M2 244H13"/>
+        <text x="0" y="268" text-anchor="middle" fill="#64748B" stroke="none" font-family="Arial, sans-serif" font-size="12" font-weight="700">BELAKANG</text>
+      </g>
+    </g>
+  </g>
+</svg>
