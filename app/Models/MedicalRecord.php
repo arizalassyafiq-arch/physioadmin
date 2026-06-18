@@ -14,6 +14,7 @@ class MedicalRecord extends Model
     protected $fillable = [
         'patient_id',
         'examined_at',
+        'jadwal_terapis',
         'patient_age_at_visit',
         'pediatric_data',
         'keluhan_utama',

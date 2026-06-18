@@ -21,7 +21,6 @@ class PatientValidationRules
             'kategori_pasien' => ['required', Rule::in(['dewasa', 'anak'])],
             'jenis_kelamin' => ['required', Rule::in(['L', 'P'])],
             'tanggal_lahir' => ['required', 'date', 'before_or_equal:today'],
-            'umur' => ['required', 'integer', 'min:0', 'max:150'],
             'pekerjaan' => ['nullable', 'string', 'max:255'],
             'alamat' => ['nullable', 'string'],
         ];

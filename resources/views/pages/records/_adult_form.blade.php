@@ -64,6 +64,11 @@
                         <input id="examined_at" name="examined_at" type="date" value="{{ old('examined_at', optional($record->examined_at)->format('Y-m-d') ?? now()->toDateString()) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>
                         <x-field-error :messages="$errors->get('examined_at')" />
                     </div>
+                    <div class="sm:col-span-2">
+                        <label for="jadwal_terapis" class="mb-2 block text-sm font-medium text-slate-700">Jadwal Terapis</label>
+                        <input id="jadwal_terapis" name="jadwal_terapis" type="text" value="{{ old('jadwal_terapis', $record->jadwal_terapis ?? '') }}" placeholder="Opsional, contoh: Senin 14.00" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                        <x-field-error :messages="$errors->get('jadwal_terapis')" />
+                    </div>
                     <div>
                         <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Nama</p>
                         <p class="mt-2 font-semibold text-slate-900">{{ $patient->nama }}</p>
@@ -166,10 +171,6 @@
                             <x-field-error :messages="$errors->get($field)" />
                         </div>
                     @endforeach
-                </div>
-                <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <img src="{{ asset('images/body-muscle-diagram.png?v=1') }}" alt="Diagram anatomi otot tubuh tampak depan dan belakang" class="mx-auto max-h-72 w-full object-contain">
-                    <p class="mt-3 text-center text-xs text-slate-500">Tampilan otot tubuh depan dan belakang untuk referensi pemeriksaan.</p>
                 </div>
             </section>
 

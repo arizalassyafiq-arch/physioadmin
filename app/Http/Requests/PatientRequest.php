@@ -33,7 +33,6 @@ class PatientRequest extends FormRequest
             'kategori_pasien' => 'kategori pasien',
             'jenis_kelamin' => 'jenis kelamin',
             'tanggal_lahir' => 'tanggal lahir',
-            'umur' => 'umur',
             'pekerjaan' => 'pekerjaan',
             'alamat' => 'alamat',
         ];

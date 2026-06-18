@@ -27,6 +27,7 @@ class MedicalRecordRequest extends FormRequest
     {
         return [
             'examined_at' => ['required', 'date', 'before_or_equal:today'],
+            'jadwal_terapis' => ['nullable', 'string', 'max:255'],
             'keluhan_utama' => ['required', 'string'],
             'riwayat_penyakit_sekarang' => ['nullable', 'string'],
             'riwayat_penyakit_dahulu' => ['nullable', 'string'],
@@ -112,6 +113,7 @@ class MedicalRecordRequest extends FormRequest
     {
         return [
             'examined_at' => 'tanggal pemeriksaan',
+            'jadwal_terapis' => 'jadwal terapis',
             'keluhan_utama' => 'keluhan utama',
             'nadi' => 'nadi',
             'suhu' => 'suhu',

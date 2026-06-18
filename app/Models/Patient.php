@@ -35,6 +35,11 @@ class Patient extends Model
         return $this->hasMany(MedicalRecord::class);
     }
 
+    public function controlSchedules(): HasMany
+    {
+        return $this->hasMany(PatientControlSchedule::class);
+    }
+
     public function latestMedicalRecord(): HasOne
     {
         return $this->hasOne(MedicalRecord::class)->latestOfMany();

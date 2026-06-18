@@ -91,6 +91,11 @@
                 <x-field-error :messages="$errors->get('examined_at')" />
             </div>
             <div>
+                <label for="jadwal_terapis" class="mb-2 block text-sm font-medium text-slate-700">Jadwal Terapis</label>
+                <input id="jadwal_terapis" name="jadwal_terapis" type="text" value="{{ old('jadwal_terapis', $record->jadwal_terapis ?? '') }}" placeholder="Opsional, contoh: Senin 14.00" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                <x-field-error :messages="$errors->get('jadwal_terapis')" />
+            </div>
+            <div>
                 <label for="pediatric_data_nama_ibu_ayah" class="mb-2 block text-sm font-medium text-slate-700">Nama Ibu/Ayah</label>
                 <input id="pediatric_data_nama_ibu_ayah" name="pediatric_data[nama_ibu_ayah]" type="text" value="{{ old('pediatric_data.nama_ibu_ayah', data_get($pediatric, 'nama_ibu_ayah', '')) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                 <x-field-error :messages="$errors->get('pediatric_data.nama_ibu_ayah')" />
@@ -188,10 +193,6 @@
                 <label for="pemeriksaan_kognitif" class="mb-2 block text-sm font-medium text-slate-700">Pemeriksaan Kognitif</label>
                 <textarea id="pemeriksaan_kognitif" name="pemeriksaan_kognitif" rows="3" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">{{ old('pemeriksaan_kognitif', $record->pemeriksaan_kognitif ?? '') }}</textarea>
                 <x-field-error :messages="$errors->get('pemeriksaan_kognitif')" />
-            </div>
-            <div class="lg:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <img src="{{ asset('images/body-muscle-diagram.png?v=1') }}" alt="Diagram anatomi otot tubuh tampak depan dan belakang" class="mx-auto max-h-72 w-full object-contain">
-                <p class="mt-3 text-center text-xs text-slate-500">Tampilan otot tubuh depan dan belakang untuk referensi pemeriksaan.</p>
             </div>
             <div class="lg:col-span-2">
                 <label for="hasil_penunjang" class="mb-2 block text-sm font-medium text-slate-700">Hasil Pemeriksaan Penunjang (Rontgen/MRI/EMG/CT-Scan/Lab)</label>

@@ -27,7 +27,6 @@ class MedicalRecordWorkflowTest extends TestCase
                 'kategori_pasien' => 'dewasa',
                 'jenis_kelamin' => 'L',
                 'tanggal_lahir' => '1959-12-11',
-                'umur' => 66,
                 'pekerjaan' => 'Wiraswasta',
                 'alamat' => 'Solo',
             ])
@@ -36,6 +35,7 @@ class MedicalRecordWorkflowTest extends TestCase
         $patient = Patient::query()->where('no_rm', 'RM-NEW')->firstOrFail();
 
         $this->assertSame('dewasa', $patient->kategori_pasien);
+        $this->assertSame(66, $patient->umur);
         $this->assertDatabaseCount('medical_records', 0);
 
         $this->actingAs($admin)
@@ -74,6 +74,7 @@ class MedicalRecordWorkflowTest extends TestCase
             ->withoutVite()
             ->post(route('records.store', $patient), [
                 'examined_at' => '2026-01-15',
+                'jadwal_terapis' => 'Senin 14.00',
                 'keluhan_utama' => 'Nyeri punggung bawah',
                 'rencana_intervensi' => ['Latihan stabilisasi'],
                 'file_penunjang' => UploadedFile::fake()->create('hasil-lab.pdf', 64, 'application/pdf'),
@@ -92,6 +93,7 @@ class MedicalRecordWorkflowTest extends TestCase
 
         $response->assertRedirect(route('records.show', $record));
         $this->assertSame(25, $record->patient_age_at_visit);
+        $this->assertSame('Senin 14.00', $record->jadwal_terapis);
         Storage::disk('medical')->assertExists($record->file_penunjang);
         Storage::disk('medical')->assertExists($intervention->paraf);
         Storage::disk('public')->assertMissing($record->file_penunjang);

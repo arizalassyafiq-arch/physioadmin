@@ -23,8 +23,8 @@
                 <a href="{{ route('patients.index') }}" class="{{ request()->routeIs('patients.index') || request()->routeIs('patients.show') || request()->routeIs('patients.edit') || request()->routeIs('records.show') || request()->routeIs('records.edit') ? 'bg-white/10 text-white' : 'text-blue-100 hover:bg-white/5 hover:text-white' }} flex items-center rounded-xl px-4 py-3 text-sm font-medium">
                     Riwayat Rekam
                 </a>
-                <a href="{{ route('schedule') }}" class="{{ request()->routeIs('schedule') ? 'bg-white/10 text-white' : 'text-blue-100 hover:bg-white/5 hover:text-white' }} flex items-center rounded-xl px-4 py-3 text-sm font-medium">
-                    Jadwal Terapis
+                <a href="{{ route('schedule') }}" class="{{ request()->routeIs('schedule') || request()->routeIs('schedule.*') ? 'bg-white/10 text-white' : 'text-blue-100 hover:bg-white/5 hover:text-white' }} flex items-center rounded-xl px-4 py-3 text-sm font-medium">
+                    Jadwal Pasien
                 </a>
                 <a href="{{ route('reports') }}" class="{{ request()->routeIs('reports') ? 'bg-white/10 text-white' : 'text-blue-100 hover:bg-white/5 hover:text-white' }} flex items-center rounded-xl px-4 py-3 text-sm font-medium">
                     Laporan
@@ -65,16 +65,27 @@
     </div>
 
     <script>
-        window.patientForm = (initialAge = '') => ({
-            umur: initialAge,
-            syncAge(event) {
-                const value = event.target.value;
+        window.patientForm = (initialBirthDate = '', fallbackAge = '') => ({
+            umur: '',
+            init() {
+                this.syncAge(initialBirthDate, fallbackAge);
+            },
+            get ageLabel() {
+                return this.umur === '' ? 'Pilih tanggal lahir' : `${this.umur} tahun`;
+            },
+            syncAge(value, fallbackAge = '') {
                 if (!value) {
-                    this.umur = '';
+                    this.umur = fallbackAge;
                     return;
                 }
 
                 const birthDate = new Date(value);
+
+                if (Number.isNaN(birthDate.getTime())) {
+                    this.umur = fallbackAge;
+                    return;
+                }
+
                 const today = new Date();
                 let age = today.getFullYear() - birthDate.getFullYear();
                 const monthDiff = today.getMonth() - birthDate.getMonth();

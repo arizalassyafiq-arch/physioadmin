@@ -52,6 +52,7 @@
             <tr><td class="label">Tanggal Lahir</td><td>{{ $record->patient->tanggal_lahir->translatedFormat('d F Y') }}</td></tr>
             <tr><td class="label">Tanggal Pemeriksaan</td><td>{{ optional($record->examined_at)->translatedFormat('d F Y') ?? '-' }}</td></tr>
             <tr><td class="label">Umur Saat Pemeriksaan</td><td>{{ $record->patient_age_at_visit ?? $record->patient->umur }} tahun</td></tr>
+            <tr><td class="label">Jadwal Terapis</td><td>{{ $record->jadwal_terapis ?: '-' }}</td></tr>
             <tr><td class="label">Pekerjaan</td><td>{{ $record->patient->pekerjaan ?: '-' }}</td></tr>
             <tr><td class="label">Alamat</td><td>{{ $record->patient->alamat ?: '-' }}</td></tr>
             @if ($isPediatric)

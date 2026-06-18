@@ -17,6 +17,8 @@ class DeletePatientAction
         DB::transaction(function () use ($patient): void {
             $patient->load('medicalRecords.interventions');
 
+            $patient->controlSchedules()->delete();
+
             foreach ($patient->medicalRecords as $record) {
                 $record->interventions()->delete();
                 $record->delete();

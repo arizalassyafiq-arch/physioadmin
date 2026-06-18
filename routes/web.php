@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InterventionController;
 use App\Http\Controllers\MedicalFileController;
+use App\Http\Controllers\PatientControlScheduleController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ReportController;
@@ -42,17 +43,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/interventions/{intervention}', [InterventionController::class, 'destroy'])->name('interventions.destroy');
     Route::get('/interventions/{intervention}/signature', [MedicalFileController::class, 'signature'])->name('interventions.signature');
 
-    Route::view('/jadwal-terapis', 'pages.schedule', [
-        'schedule' => [
-            ['day' => 'Senin', 'hours' => '14.00 - 20.00', 'is_open' => true],
-            ['day' => 'Selasa', 'hours' => '14.00 - 20.00', 'is_open' => true],
-            ['day' => 'Rabu', 'hours' => '14.00 - 20.00', 'is_open' => true],
-            ['day' => 'Kamis', 'hours' => '14.00 - 20.00', 'is_open' => true],
-            ['day' => 'Jumat', 'hours' => '14.00 - 18.00', 'is_open' => true],
-            ['day' => 'Sabtu', 'hours' => '14.00 - 18.00', 'is_open' => true],
-            ['day' => 'Minggu', 'hours' => 'Libur', 'is_open' => false],
-        ],
-    ])->name('schedule');
+    Route::get('/jadwal-pasien', [PatientControlScheduleController::class, 'index'])->name('schedule');
+    Route::post('/jadwal-pasien', [PatientControlScheduleController::class, 'store'])->name('schedule.store');
+    Route::patch('/jadwal-pasien/{patientControlSchedule}/selesai', [PatientControlScheduleController::class, 'complete'])->name('schedule.complete');
+    Route::delete('/jadwal-pasien/{patientControlSchedule}', [PatientControlScheduleController::class, 'destroy'])->name('schedule.destroy');
 
     Route::get('/laporan', [ReportController::class, 'index'])->name('reports');
     Route::get('/laporan/pdf', [ReportController::class, 'exportPdf'])->name('reports.pdf');

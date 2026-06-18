@@ -15,7 +15,10 @@
     }
 </style>
 
-<div x-data="patientForm(@js(old('umur', $patient->umur ?? '')))">
+<div x-data="patientForm(
+    @js(old('tanggal_lahir', isset($patient?->tanggal_lahir) ? $patient->tanggal_lahir->format('Y-m-d') : '')),
+    @js($patient->umur ?? '')
+)">
     <div class="grid gap-5 md:grid-cols-2">
         <div class="md:col-span-2">
             <fieldset>
@@ -69,13 +72,15 @@
         </div>
         <div>
             <label for="tanggal_lahir" class="mb-2 block text-sm font-medium text-slate-700">Tanggal Lahir</label>
-            <input id="tanggal_lahir" name="tanggal_lahir" type="date" value="{{ old('tanggal_lahir', isset($patient?->tanggal_lahir) ? $patient->tanggal_lahir->format('Y-m-d') : '') }}" @input="syncAge($event)" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>
+            <input id="tanggal_lahir" name="tanggal_lahir" type="date" value="{{ old('tanggal_lahir', isset($patient?->tanggal_lahir) ? $patient->tanggal_lahir->format('Y-m-d') : '') }}" @input="syncAge($event.target.value)" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>
             <x-field-error :messages="$errors->get('tanggal_lahir')" />
         </div>
         <div>
-            <label for="umur" class="mb-2 block text-sm font-medium text-slate-700">Umur</label>
-            <input id="umur" name="umur" type="number" min="0" max="150" x-model="umur" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>
-            <x-field-error :messages="$errors->get('umur')" />
+            <p class="mb-2 block text-sm font-medium text-slate-700">Umur</p>
+            <div class="flex min-h-11 items-center rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800">
+                <span x-text="ageLabel"></span>
+            </div>
+            <p class="mt-2 text-xs text-slate-500">Otomatis dihitung dari tanggal lahir.</p>
         </div>
         <div>
             <label for="pekerjaan" class="mb-2 block text-sm font-medium text-slate-700">Pekerjaan</label>

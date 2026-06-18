@@ -38,6 +38,7 @@
                     <div><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Kategori Pasien</p><p class="mt-2 font-semibold text-slate-900">{{ $record->patient->categoryLabel() }}</p></div>
                     <div><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Jenis Kelamin</p><p class="mt-2 font-semibold text-slate-900">{{ $record->patient->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</p></div>
                     <div><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Umur Saat Pemeriksaan</p><p class="mt-2 font-semibold text-slate-900">{{ $record->patient_age_at_visit ?? $record->patient->umur }} tahun</p></div>
+                    <div><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Jadwal Terapis</p><p class="mt-2 font-semibold text-slate-900">{{ $record->jadwal_terapis ?: '-' }}</p></div>
                     <div class="sm:col-span-2"><p class="text-xs uppercase tracking-[0.2em] text-slate-400">Alamat</p><p class="mt-2 font-semibold text-slate-900">{{ $record->patient->alamat ?: '-' }}</p></div>
                 </div>
             </section>

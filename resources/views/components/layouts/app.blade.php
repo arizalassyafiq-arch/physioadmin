@@ -670,14 +670,14 @@
                     </span>
                     <span class="app-nav-label">Riwayat Rekam</span>
                 </a>
-                <a href="{{ route('schedule') }}" class="app-nav-link {{ request()->routeIs('schedule') ? 'is-active' : '' }}" title="Jadwal Terapis" @click="closeMobileSidebar()">
+                <a href="{{ route('schedule') }}" class="app-nav-link {{ request()->routeIs('schedule') || request()->routeIs('schedule.*') ? 'is-active' : '' }}" title="Jadwal Pasien" @click="closeMobileSidebar()">
                     <span class="app-nav-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                             <rect x="4" y="5" width="16" height="15" rx="2" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 3v4M16 3v4M4 10h16M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01" />
                         </svg>
                     </span>
-                    <span class="app-nav-label">Jadwal Terapis</span>
+                    <span class="app-nav-label">Jadwal Pasien</span>
                 </a>
                 <a href="{{ route('reports') }}" class="app-nav-link {{ request()->routeIs('reports') ? 'is-active' : '' }}" title="Laporan" @click="closeMobileSidebar()">
                     <span class="app-nav-icon">
@@ -765,16 +765,27 @@
             }
         });
 
-        window.patientForm = (initialAge = '') => ({
-            umur: initialAge,
-            syncAge(event) {
-                const value = event.target.value;
+        window.patientForm = (initialBirthDate = '', fallbackAge = '') => ({
+            umur: '',
+            init() {
+                this.syncAge(initialBirthDate, fallbackAge);
+            },
+            get ageLabel() {
+                return this.umur === '' ? 'Pilih tanggal lahir' : `${this.umur} tahun`;
+            },
+            syncAge(value, fallbackAge = '') {
                 if (!value) {
-                    this.umur = '';
+                    this.umur = fallbackAge;
                     return;
                 }
 
                 const birthDate = new Date(value);
+
+                if (Number.isNaN(birthDate.getTime())) {
+                    this.umur = fallbackAge;
+                    return;
+                }
+
                 const today = new Date();
                 let age = today.getFullYear() - birthDate.getFullYear();
                 const monthDiff = today.getMonth() - birthDate.getMonth();
