@@ -10,7 +10,6 @@
         "postinstall": "node scripts/patch-vite-windows.js"
     },
     "devDependencies": {
-        "@esbuild/win32-x64": "^0.28.1",
         "@tailwindcss/vite": "^4.3.1",
         "alpinejs": "^3.15.12",
         "axios": "^1.18.0",
