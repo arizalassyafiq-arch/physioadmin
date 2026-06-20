@@ -15,10 +15,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
 
-        $middleware->web(append: [
-            \App\Http\Middleware\SecurityHeaders::class,
-        ]);
-
         $middleware->redirectGuestsTo('/login');
         $middleware->redirectUsersTo('/dashboard');
     })

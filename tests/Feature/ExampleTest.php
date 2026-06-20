@@ -18,18 +18,11 @@ class ExampleTest extends TestCase
             ->assertOk();
     }
 
-    public function test_security_headers_are_sent(): void
+    public function test_application_csp_header_is_not_sent(): void
     {
-        config(['app.url' => 'https://klinikphysio.my.id']);
-
         $this->withoutVite()->get('/login')
-            ->assertHeader('X-Content-Type-Options', 'nosniff')
-            ->assertHeader('X-Frame-Options', 'DENY')
-            ->assertHeader('Referrer-Policy', 'same-origin')
-            ->assertHeader(
-                'Content-Security-Policy',
-                "frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://klinikphysio.my.id"
-            );
+            ->assertOk()
+            ->assertHeaderMissing('Content-Security-Policy');
     }
 
     public function test_forgot_password_page_is_accessible(): void
