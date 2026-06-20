@@ -59,6 +59,18 @@ class MedicalRecordWorkflowTest extends TestCase
         ]);
     }
 
+    public function test_patient_create_form_uses_relative_action_for_csp_self(): void
+    {
+        $admin = User::factory()->create();
+
+        $this->actingAs($admin)
+            ->withoutVite()
+            ->get(route('patients.create'))
+            ->assertOk()
+            ->assertSee('action="/patients"', false)
+            ->assertDontSee('action="http', false);
+    }
+
     public function test_admin_can_create_patients_with_same_name_and_medical_record_number(): void
     {
         $admin = User::factory()->create();

@@ -11,7 +11,7 @@
             <p class="mt-1 text-sm text-slate-500">Identitas pasien langsung disimpan permanen setelah tombol Simpan Identitas diklik.</p>
         </div>
 
-        <form method="POST" action="{{ route('patients.store') }}" class="space-y-6">
+        <form method="POST" action="{{ route('patients.store', [], false) }}" class="space-y-6">
             @csrf
             @include('pages.patients._form', ['patient' => $patient])
 

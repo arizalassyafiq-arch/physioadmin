@@ -39,7 +39,7 @@
                 <div class="flex flex-wrap gap-3">
                     <a href="{{ route('records.create', $patient) }}" class="rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-100">Tambah Rekam Medis</a>
                     <a href="{{ route('patients.edit', $patient) }}" class="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Edit Pasien</a>
-                    <form method="POST" action="{{ route('patients.destroy', $patient) }}" onsubmit="return confirm('Hapus data pasien ini?')">
+                    <form method="POST" action="{{ route('patients.destroy', $patient, false) }}" onsubmit="return confirm('Hapus data pasien ini?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="rounded-xl border border-red-200 px-5 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Hapus</button>

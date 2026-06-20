@@ -700,7 +700,7 @@
                 </a>
             </nav>
             <div class="app-sidebar-footer">
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout', [], false) }}">
                     @csrf
                     <button type="submit" class="app-logout-button" title="Keluar">
                         <span class="app-nav-icon">

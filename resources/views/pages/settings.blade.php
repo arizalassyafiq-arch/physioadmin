@@ -62,7 +62,7 @@
                     Gunakan tombol ini untuk mengakhiri sesi login pada perangkat ini. Setelah keluar, Anda perlu login kembali untuk mengakses dashboard.
                 </p>
 
-                <form method="POST" action="{{ route('logout') }}" class="mt-6">
+                <form method="POST" action="{{ route('logout', [], false) }}" class="mt-6">
                     @csrf
                     <button type="submit" class="settings-logout-button">
                         Keluar dari Sistem

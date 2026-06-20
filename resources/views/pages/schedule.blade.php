@@ -27,7 +27,7 @@
 
         <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <h3 class="text-lg font-semibold text-blue-900">Tambah Jadwal Kontrol</h3>
-            <form method="POST" action="{{ route('schedule.store') }}" class="mt-5 grid gap-4 lg:grid-cols-[1.5fr_0.7fr_0.9fr_1.2fr_auto] lg:items-end">
+            <form method="POST" action="{{ route('schedule.store', [], false) }}" class="mt-5 grid gap-4 lg:grid-cols-[1.5fr_0.7fr_0.9fr_1.2fr_auto] lg:items-end">
                 @csrf
                 <div>
                     <label for="patient_id" class="mb-2 block text-sm font-medium text-slate-700">Pasien</label>
@@ -64,7 +64,7 @@
 
         <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <h3 class="text-lg font-semibold text-blue-900">Cari Jadwal Kontrol</h3>
-            <form method="GET" action="{{ route('schedule') }}" class="mt-5 grid gap-4 lg:grid-cols-[1.3fr_0.9fr_0.9fr_0.9fr_auto_auto] lg:items-end">
+            <form method="GET" action="{{ route('schedule', [], false) }}" class="mt-5 grid gap-4 lg:grid-cols-[1.3fr_0.9fr_0.9fr_0.9fr_auto_auto] lg:items-end">
                 <div>
                     <label for="search" class="mb-2 block text-sm font-medium text-slate-700">Nama / No. RM</label>
                     <input id="search" name="search" type="search" value="{{ $search }}" placeholder="Cari pasien" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
@@ -143,7 +143,7 @@
                                             Edit
                                         </a>
                                         @if ($schedule->status !== 'completed')
-                                            <form method="POST" action="{{ route('schedule.complete', $schedule) }}">
+                                            <form method="POST" action="{{ route('schedule.complete', $schedule, false) }}">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700">
@@ -151,7 +151,7 @@
                                                 </button>
                                             </form>
                                         @endif
-                                        <form method="POST" action="{{ route('schedule.destroy', $schedule) }}" onsubmit="return confirm('Hapus jadwal kontrol ini?')">
+                                        <form method="POST" action="{{ route('schedule.destroy', $schedule, false) }}" onsubmit="return confirm('Hapus jadwal kontrol ini?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">

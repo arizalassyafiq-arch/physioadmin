@@ -21,7 +21,7 @@
             <div class="flex flex-wrap gap-3">
                 <a href="{{ route('records.edit', $record) }}" class="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Edit</a>
                 <a href="{{ route('records.pdf', $record) }}" class="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">Unduh PDF</a>
-                <form method="POST" action="{{ route('records.destroy', $record) }}" onsubmit="return confirm('Hapus rekam medis ini?')">
+                <form method="POST" action="{{ route('records.destroy', $record, false) }}" onsubmit="return confirm('Hapus rekam medis ini?')">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="rounded-xl border border-red-200 px-5 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Hapus</button>

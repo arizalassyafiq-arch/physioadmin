@@ -16,7 +16,7 @@
         </section>
 
         <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-            <form method="POST" action="{{ route('schedule.update', $schedule) }}" class="grid gap-5 lg:grid-cols-2">
+            <form method="POST" action="{{ route('schedule.update', $schedule, false) }}" class="grid gap-5 lg:grid-cols-2">
                 @csrf
                 @method('PUT')
 

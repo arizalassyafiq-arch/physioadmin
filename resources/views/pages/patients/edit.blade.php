@@ -5,7 +5,7 @@
             <p class="mt-1 text-sm text-slate-500">Sesuaikan identitas pasien bila ada perubahan.</p>
         </div>
 
-        <form method="POST" action="{{ route('patients.update', $patient) }}" class="space-y-6">
+        <form method="POST" action="{{ route('patients.update', $patient, false) }}" class="space-y-6">
             @csrf
             @method('PUT')
             @include('pages.patients._form', ['patient' => $patient])

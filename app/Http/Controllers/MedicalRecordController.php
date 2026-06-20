@@ -30,7 +30,7 @@ class MedicalRecordController extends Controller
                 'rencana_intervensi' => [''],
             ]),
             'interventionRows' => $this->defaultInterventionRows(),
-            'formAction' => route('records.store', $patient),
+            'formAction' => route('records.store', $patient, false),
             'formMethod' => 'POST',
             'pageTitle' => 'Rekam Medis: Pasien Baru',
         ]);
@@ -69,7 +69,7 @@ class MedicalRecordController extends Controller
             'patient' => $record->patient,
             'record' => $record,
             'interventionRows' => $this->interventionRowsFromRecord($record),
-            'formAction' => route('records.update', $record),
+            'formAction' => route('records.update', $record, false),
             'formMethod' => 'PUT',
             'pageTitle' => 'Edit Rekam Medis',
         ]);

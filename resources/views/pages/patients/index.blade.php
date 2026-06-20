@@ -24,7 +24,7 @@
         <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <form
                 method="GET"
-                action="{{ route('patients.index') }}"
+                action="{{ route('patients.index', [], false) }}"
                 x-data="{
                     timer: null,
                     debounceSubmit() {
@@ -90,7 +90,7 @@
                 @if ($canBulkDelete)
                     <form
                         method="POST"
-                        action="{{ route('patients.bulk-destroy.visit-period') }}"
+                        action="{{ route('patients.bulk-destroy.visit-period', [], false) }}"
                         onsubmit="return confirm('Arsipkan semua pasien hasil filter kunjungan {{ $selectedVisitPeriod }}? Tindakan ini juga mengarsipkan rekam medis dan jadwal kontrol terkait.')"
                     >
                         @csrf

@@ -19,7 +19,7 @@
                     Silakan masukkan kredensial admin Anda untuk melanjutkan.
                 </p>
 
-                <form method="POST" action="{{ route('login') }}" class="auth-form">
+                <form method="POST" action="{{ route('login', [], false) }}" class="auth-form">
                     @csrf
 
                     <div class="form-group">

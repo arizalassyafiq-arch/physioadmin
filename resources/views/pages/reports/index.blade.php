@@ -21,7 +21,7 @@
                 </div>
 
                 <div class="flex flex-col gap-3 sm:flex-row">
-                    <form method="GET" action="{{ route('reports') }}" class="flex gap-3">
+                    <form method="GET" action="{{ route('reports', [], false) }}" class="flex gap-3">
                         <input
                             type="month"
                             name="month"

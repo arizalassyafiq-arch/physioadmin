@@ -34,7 +34,7 @@
                 </a>
             </nav>
             <div class="border-t border-white/10 p-5">
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout', [], false) }}">
                     @csrf
                     <button type="submit" class="flex w-full items-center rounded-xl px-4 py-3 text-left text-sm font-medium text-red-200 transition hover:bg-red-500/10 hover:text-white">
                         Keluar
