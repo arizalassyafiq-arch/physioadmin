@@ -61,7 +61,7 @@
                 <div class="mt-5 grid gap-4 sm:grid-cols-2">
                     <div class="sm:col-span-2">
                         <label for="examined_at" class="mb-2 block text-sm font-medium text-slate-700">Tanggal Pemeriksaan</label>
-                        <input id="examined_at" name="examined_at" type="date" value="{{ old('examined_at', optional($record->examined_at)->format('Y-m-d') ?? now()->toDateString()) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>
+                        <x-date-input id="examined_at" name="examined_at" :value="old('examined_at', $record->examined_at ?? now())" required />
                         <x-field-error :messages="$errors->get('examined_at')" />
                     </div>
                     <div class="sm:col-span-2">
@@ -309,7 +309,7 @@
         <div class="flex flex-col gap-4 border-b border-slate-200 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
                 <h3 class="text-lg font-semibold text-blue-900">Pelaksanaan & Evaluasi Intervensi</h3>
-                <p class="mt-1 text-sm text-slate-500">Tambahkan catatan intervensi dan hasil evaluasi secara dinamis.</p>
+                <p class="mt-1 text-sm text-slate-500">Tambahkan catatan intervensi, keluhan, dan hasil evaluasi secara dinamis.</p>
             </div>
             <button type="button" @click="addRow" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                 Tambah Baris
@@ -327,12 +327,13 @@
             </div>
         @endif
         <div class="overflow-x-auto">
-            <table class="min-w-[980px] divide-y divide-slate-200 text-sm">
+            <table class="min-w-[1180px] divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50 text-left text-slate-500">
                     <tr>
                         <th class="px-4 py-3 font-medium">No</th>
                         <th class="px-4 py-3 font-medium">TGL</th>
                         <th class="px-4 py-3 font-medium">Intervensi</th>
+                        <th class="px-4 py-3 font-medium">Keluhan</th>
                         <th class="px-4 py-3 font-medium">Hasil Evaluasi</th>
                         <th class="px-4 py-3 font-medium">Paraf</th>
                         <th class="px-4 py-3 font-medium">Aksi</th>
@@ -344,10 +345,21 @@
                             <td class="px-4 py-4 align-top font-semibold text-slate-900" x-text="index + 1"></td>
                             <td class="px-4 py-4 align-top">
                                 <input type="hidden" :name="`interventions[${index}][id]`" x-model="row.id">
-                                <input type="date" :name="`interventions[${index}][tgl]`" x-model="row.tgl" class="w-40 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                <div class="relative w-44">
+                                    <input type="text" inputmode="numeric" placeholder="mm/dd/yyyy" :name="`interventions[${index}][tgl]`" x-model="row.tgl" class="w-full rounded-xl border border-slate-300 px-3 py-2 pr-10 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                    <input type="date" :value="window.toIsoDate(row.tgl)" @change="row.tgl = window.formatDateFromIso($event.target.value)" class="absolute border-0 p-0" style="right: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none;" tabindex="-1" aria-hidden="true">
+                                    <button type="button" @click="const picker = $el.previousElementSibling; picker.value = window.toIsoDate(row.tgl); if (picker.showPicker) { picker.showPicker(); } else { picker.click(); }" class="absolute right-1 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-blue-700" aria-label="Pilih tanggal">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                             <td class="px-4 py-4 align-top">
                                 <input type="text" :name="`interventions[${index}][intervensi]`" x-model="row.intervensi" class="w-full min-w-56 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                            </td>
+                            <td class="px-4 py-4 align-top">
+                                <input type="text" :name="`interventions[${index}][keluhan]`" x-model="row.keluhan" class="w-full min-w-56 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                             </td>
                             <td class="px-4 py-4 align-top">
                                 <input type="text" :name="`interventions[${index}][hasil_evaluasi]`" x-model="row.hasil_evaluasi" class="w-full min-w-56 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
@@ -369,7 +381,7 @@
                     </template>
                     <template x-if="rows.length === 0">
                         <tr>
-                            <td colspan="6" class="px-4 py-10 text-center text-sm text-slate-500">
+                            <td colspan="7" class="px-4 py-10 text-center text-sm text-slate-500">
                                 Belum ada baris intervensi. Klik Tambah Baris untuk mencatat intervensi.
                             </td>
                         </tr>

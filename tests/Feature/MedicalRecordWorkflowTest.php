@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -26,7 +27,7 @@ class MedicalRecordWorkflowTest extends TestCase
                 'no_rm' => 'RM-NEW',
                 'kategori_pasien' => 'dewasa',
                 'jenis_kelamin' => 'L',
-                'tanggal_lahir' => '1959-12-11',
+                'tanggal_lahir' => '11/12/1959',
                 'pekerjaan' => 'Wiraswasta',
                 'alamat' => 'Solo',
             ])
@@ -41,7 +42,7 @@ class MedicalRecordWorkflowTest extends TestCase
         $this->actingAs($admin)
             ->withoutVite()
             ->post(route('records.store', $patient), [
-                'examined_at' => '2026-06-11',
+                'examined_at' => '06/11/2026',
                 'keluhan_utama' => 'Nyeri bahu',
                 'rencana_intervensi' => ['Latihan ROM'],
             ])
@@ -50,8 +51,99 @@ class MedicalRecordWorkflowTest extends TestCase
         $this->assertDatabaseHas('patients', [
             'no_rm' => 'RM-NEW',
             'kategori_pasien' => 'dewasa',
+            'tanggal_lahir' => '1959-11-12 00:00:00',
         ]);
-        $this->assertDatabaseHas('medical_records', ['keluhan_utama' => 'Nyeri bahu']);
+        $this->assertDatabaseHas('medical_records', [
+            'examined_at' => '2026-06-11 00:00:00',
+            'keluhan_utama' => 'Nyeri bahu',
+        ]);
+    }
+
+    public function test_admin_can_create_patients_with_same_name_and_medical_record_number(): void
+    {
+        $admin = User::factory()->create();
+
+        foreach (['1990-01-01', '1992-02-02'] as $birthDate) {
+            $this->actingAs($admin)
+                ->withoutVite()
+                ->post(route('patients.store'), [
+                    'nama' => 'Pasien Sama',
+                    'no_rm' => 'RM-DUPLICATE',
+                    'kategori_pasien' => 'dewasa',
+                    'jenis_kelamin' => 'L',
+                    'tanggal_lahir' => $birthDate,
+                    'pekerjaan' => 'Karyawan',
+                    'alamat' => 'Jakarta',
+                ])
+                ->assertRedirect();
+        }
+
+        $this->assertSame(2, Patient::query()
+            ->where('nama', 'Pasien Sama')
+            ->where('no_rm', 'RM-DUPLICATE')
+            ->count());
+    }
+
+    public function test_patient_detail_shows_visit_summary_and_sequential_interventions(): void
+    {
+        Carbon::setTestNow('2026-06-18 10:00:00');
+
+        $admin = User::factory()->create();
+        $patient = Patient::create([
+            'nama' => 'Pasien Riwayat',
+            'no_rm' => 'RM-HISTORY-001',
+            'kategori_pasien' => 'dewasa',
+            'jenis_kelamin' => 'L',
+            'tanggal_lahir' => '1990-01-01',
+            'umur' => 36,
+            'pekerjaan' => 'Guru',
+            'alamat' => 'Bandung',
+        ]);
+
+        MedicalRecord::create([
+            'patient_id' => $patient->id,
+            'examined_at' => '2026-06-28',
+            'patient_age_at_visit' => 36,
+            'keluhan_utama' => 'paha',
+        ]);
+        MedicalRecord::create([
+            'patient_id' => $patient->id,
+            'examined_at' => '2026-06-18',
+            'patient_age_at_visit' => 36,
+            'keluhan_utama' => 'sasasa',
+        ]);
+        MedicalRecord::create([
+            'patient_id' => $patient->id,
+            'examined_at' => '2025-12-20',
+            'patient_age_at_visit' => 35,
+            'keluhan_utama' => 'tahun lalu',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->withoutVite()
+            ->get(route('patients.show', $patient))
+            ->assertOk()
+            ->assertSee('Kunjungan Tahun Ini')
+            ->assertSee('2 kali')
+            ->assertSee('Tanggal Kedatangan Pertama')
+            ->assertSee('20 Des 2025')
+            ->assertSee('Intervensi 1')
+            ->assertSee('Intervensi 2')
+            ->assertSee('Intervensi 3');
+
+        $response->assertSeeInOrder([
+            '20 Des 2025',
+            'tahun lalu',
+            'Intervensi 1',
+            '18 Jun 2026',
+            'sasasa',
+            'Intervensi 2',
+            '28 Jun 2026',
+            'paha',
+            'Intervensi 3',
+        ]);
+
+        Carbon::setTestNow();
     }
 
     public function test_admin_can_create_download_export_and_archive_medical_record(): void
@@ -80,8 +172,9 @@ class MedicalRecordWorkflowTest extends TestCase
                 'file_penunjang' => UploadedFile::fake()->create('hasil-lab.pdf', 64, 'application/pdf'),
                 'interventions' => [
                     [
-                        'tgl' => '2026-01-15',
+                        'tgl' => '01/15/2026',
                         'intervensi' => 'Latihan core ringan',
+                        'keluhan' => 'Nyeri saat fleksi',
                         'hasil_evaluasi' => 'Nyeri menurun',
                         'paraf' => UploadedFile::fake()->image('paraf.png'),
                     ],
@@ -94,6 +187,7 @@ class MedicalRecordWorkflowTest extends TestCase
         $response->assertRedirect(route('records.show', $record));
         $this->assertSame(25, $record->patient_age_at_visit);
         $this->assertSame('Senin 14.00', $record->jadwal_terapis);
+        $this->assertSame('Nyeri saat fleksi', $intervention->keluhan);
         Storage::disk('medical')->assertExists($record->file_penunjang);
         Storage::disk('medical')->assertExists($intervention->paraf);
         Storage::disk('public')->assertMissing($record->file_penunjang);
@@ -155,7 +249,6 @@ class MedicalRecordWorkflowTest extends TestCase
                     'riwayat_nicu_picu' => 'Tidak pernah',
                     'riwayat_penyerta' => 'Tidak ada',
                     'riwayat_imunisasi' => 'Lengkap',
-                    'inspeksi_kesadaran_umum' => 'Kooperatif',
                     'pemeriksaan_gerak_dasar' => 'Duduk mandiri, berjalan dibantu',
                     'lingkar_kepala' => '49.5',
                     'tingkat_kesadaran' => 'compos_mentis',
@@ -164,9 +257,6 @@ class MedicalRecordWorkflowTest extends TestCase
                 ],
                 'rencana_intervensi' => [
                     'Latihan kontrol trunk',
-                    'Latihan keseimbangan',
-                    'Stimulasi pola berjalan',
-                    'Edukasi home program',
                 ],
             ])
             ->assertRedirect();
@@ -176,7 +266,7 @@ class MedicalRecordWorkflowTest extends TestCase
         $this->assertSame('Ibu Rani', $record->pediatric_data['nama_ibu_ayah']);
         $this->assertSame('GMFM awal', $record->pediatric_data['pemeriksaan_khusus']);
         $this->assertSame('compos_mentis', $record->pediatric_data['tingkat_kesadaran']);
-        $this->assertCount(4, $record->rencana_intervensi);
+        $this->assertSame(['Latihan kontrol trunk'], $record->rencana_intervensi);
     }
 
     public function test_adult_medical_record_does_not_store_pediatric_payload(): void
@@ -244,6 +334,43 @@ class MedicalRecordWorkflowTest extends TestCase
             ->assertRedirect(route('records.show', $record));
 
         $this->assertSoftDeleted('interventions', ['id' => $intervention->id]);
+    }
+
+    public function test_admin_can_save_future_intervention_schedule_dates(): void
+    {
+        $admin = User::factory()->create();
+        $patient = Patient::create([
+            'nama' => 'Pasien Jadwal Intervensi',
+            'no_rm' => 'RM-FUTURE-INTERVENTION',
+            'kategori_pasien' => 'dewasa',
+            'jenis_kelamin' => 'L',
+            'tanggal_lahir' => '1990-01-01',
+            'umur' => 36,
+            'pekerjaan' => 'Karyawan',
+            'alamat' => 'Jakarta',
+        ]);
+
+        $this->actingAs($admin)
+            ->withoutVite()
+            ->post(route('records.store', $patient), [
+                'examined_at' => '06/18/2026',
+                'keluhan_utama' => 'Nyeri pinggul',
+                'interventions' => [
+                    [
+                        'tgl' => '06/25/2026',
+                        'intervensi' => 'Latihan lanjutan',
+                        'keluhan' => 'Pinggul',
+                        'hasil_evaluasi' => 'Jadwal kontrol',
+                    ],
+                ],
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('interventions', [
+            'tgl' => '2026-06-25 00:00:00',
+            'intervensi' => 'Latihan lanjutan',
+            'keluhan' => 'Pinggul',
+        ]);
     }
 
     public function test_medical_record_date_cannot_be_before_patient_birth_date(): void

@@ -765,6 +765,58 @@
             }
         });
 
+        window.formatDateFromIso = (value) => {
+            const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            return match ? `${match[2]}/${match[3]}/${match[1]}` : '';
+        };
+
+        window.toIsoDate = (value) => {
+            const displayMatch = String(value || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+            if (!displayMatch) {
+                return String(value || '').match(/^\d{4}-\d{2}-\d{2}$/) ? value : '';
+            }
+
+            const [, month, day, year] = displayMatch;
+            const date = new Date(Number(year), Number(month) - 1, Number(day));
+
+            if (
+                date.getFullYear() !== Number(year)
+                || date.getMonth() !== Number(month) - 1
+                || date.getDate() !== Number(day)
+            ) {
+                return '';
+            }
+
+            return `${year}-${month}-${day}`;
+        };
+
+        window.dateInputField = (initialValue = '') => ({
+            display: initialValue || '',
+            nativeValue: '',
+            init() {
+                this.nativeValue = window.toIsoDate(this.display);
+            },
+            syncNative() {
+                this.nativeValue = window.toIsoDate(this.display);
+                this.$dispatch('date-input-changed', { value: this.display });
+            },
+            fromNative() {
+                this.display = window.formatDateFromIso(this.nativeValue);
+                this.$dispatch('date-input-changed', { value: this.display });
+            },
+            openPicker() {
+                this.nativeValue = window.toIsoDate(this.display);
+                this.$refs.native.value = this.nativeValue;
+
+                if (this.$refs.native.showPicker) {
+                    this.$refs.native.showPicker();
+                    return;
+                }
+
+                this.$refs.native.click();
+            }
+        });
+
         window.patientForm = (initialBirthDate = '', fallbackAge = '') => ({
             umur: '',
             init() {
@@ -779,7 +831,7 @@
                     return;
                 }
 
-                const birthDate = new Date(value);
+                const birthDate = this.parseLocalDate(value);
 
                 if (Number.isNaN(birthDate.getTime())) {
                     this.umur = fallbackAge;
@@ -795,14 +847,23 @@
                 }
 
                 this.umur = age >= 0 ? age : '';
+            },
+            parseLocalDate(value) {
+                const match = String(value).trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+
+                if (!match) {
+                    return new Date(value);
+                }
+
+                return new Date(Number(match[3]), Number(match[1]) - 1, Number(match[2]));
             }
         });
 
         window.recordForm = (rows) => ({
             rows: (rows.length ? rows : [
-                { id: null, tgl: '', intervensi: '', hasil_evaluasi: '', paraf_url: null },
-                { id: null, tgl: '', intervensi: '', hasil_evaluasi: '', paraf_url: null },
-                { id: null, tgl: '', intervensi: '', hasil_evaluasi: '', paraf_url: null },
+                { id: null, tgl: '', intervensi: '', keluhan: '', hasil_evaluasi: '', paraf_url: null },
+                { id: null, tgl: '', intervensi: '', keluhan: '', hasil_evaluasi: '', paraf_url: null },
+                { id: null, tgl: '', intervensi: '', keluhan: '', hasil_evaluasi: '', paraf_url: null },
             ]).map((row, index) => ({
                 uid: row.id ? `saved-${row.id}` : `new-${Date.now()}-${index}`,
                 ...row,
@@ -813,6 +874,7 @@
                     id: null,
                     tgl: '',
                     intervensi: '',
+                    keluhan: '',
                     hasil_evaluasi: '',
                     paraf_url: null,
                 });

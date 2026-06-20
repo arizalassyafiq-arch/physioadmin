@@ -48,7 +48,7 @@
                 </div>
                 <div>
                     <label for="scheduled_date" class="mb-2 block text-sm font-medium text-slate-700">Tanggal Kontrol</label>
-                    <input id="scheduled_date" name="scheduled_date" type="date" value="{{ old('scheduled_date') }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>
+                    <x-date-input id="scheduled_date" name="scheduled_date" :value="old('scheduled_date')" required />
                     <x-field-error :messages="$errors->get('scheduled_date')" />
                 </div>
                 <div>
@@ -59,6 +59,48 @@
                 <button type="submit" class="rounded-xl bg-[#2563eb] px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
                     Simpan
                 </button>
+            </form>
+        </section>
+
+        <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="text-lg font-semibold text-blue-900">Cari Jadwal Kontrol</h3>
+            <form method="GET" action="{{ route('schedule') }}" class="mt-5 grid gap-4 lg:grid-cols-[1.3fr_0.9fr_0.9fr_0.9fr_auto_auto] lg:items-end">
+                <div>
+                    <label for="search" class="mb-2 block text-sm font-medium text-slate-700">Nama / No. RM</label>
+                    <input id="search" name="search" type="search" value="{{ $search }}" placeholder="Cari pasien" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+                <div>
+                    <label for="date_from" class="mb-2 block text-sm font-medium text-slate-700">Tanggal Dari</label>
+                    <x-date-input id="date_from" name="date_from" :value="$filters['date_from']" />
+                    <x-field-error :messages="$errors->get('date_from')" />
+                </div>
+                <div>
+                    <label for="date_to" class="mb-2 block text-sm font-medium text-slate-700">Tanggal Sampai</label>
+                    <x-date-input id="date_to" name="date_to" :value="$filters['date_to']" />
+                    <x-field-error :messages="$errors->get('date_to')" />
+                </div>
+                <div>
+                    <label for="status" class="mb-2 block text-sm font-medium text-slate-700">Status</label>
+                    <select id="status" name="status" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                        <option value="">Semua</option>
+                        @foreach ([
+                            'scheduled' => 'Terjadwal',
+                            'today' => 'Hari ini',
+                            'upcoming' => 'Akan datang',
+                            'overdue' => 'Terlambat',
+                            'completed' => 'Selesai',
+                        ] as $value => $label)
+                            <option value="{{ $value }}" @selected($filters['status'] === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <x-field-error :messages="$errors->get('status')" />
+                </div>
+                <button type="submit" class="rounded-xl bg-[#2563eb] px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+                    Cari
+                </button>
+                <a href="{{ route('schedule') }}" class="rounded-xl border border-slate-300 px-5 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                    Reset
+                </a>
             </form>
         </section>
 
@@ -96,6 +138,9 @@
                                     <div class="flex flex-wrap gap-2">
                                         <a href="{{ route('patients.show', $schedule->patient) }}" class="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">
                                             Detail
+                                        </a>
+                                        <a href="{{ route('schedule.edit', $schedule) }}" class="rounded-lg border border-blue-200 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-50">
+                                            Edit
                                         </a>
                                         @if ($schedule->status !== 'completed')
                                             <form method="POST" action="{{ route('schedule.complete', $schedule) }}">

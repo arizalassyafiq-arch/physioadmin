@@ -14,6 +14,7 @@ class Intervention extends Model
         'medical_record_id',
         'tgl',
         'intervensi',
+        'keluhan',
         'hasil_evaluasi',
         'paraf',
     ];

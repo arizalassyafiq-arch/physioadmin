@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Patients\DeletePatientAction;
+use App\Actions\Patients\BulkDeletePatientsByVisitPeriodAction;
 use App\Actions\Patients\StorePatientAction;
 use App\Actions\Patients\UpdatePatientAction;
 use App\Http\Requests\PatientRequest;
@@ -18,13 +19,45 @@ class PatientController extends Controller
     {
         Gate::authorize('viewAny', Patient::class);
 
+        $filters = $this->validatedIndexFilters($request);
+        $search = trim((string) $filters['search']);
+
+        $patients = $this->patientIndexQuery($filters)
+            ->with(['latestMedicalRecord'])
+            ->withCount('medicalRecords')
+            ->withMax('medicalRecords as latest_visit_at', 'examined_at')
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('pages.patients.index', compact('patients', 'filters', 'search'));
+    }
+
+    public function bulkDestroyByVisitPeriod(
+        Request $request,
+        BulkDeletePatientsByVisitPeriodAction $bulkDeletePatients,
+    ): RedirectResponse {
+        Gate::authorize('deleteAny', Patient::class);
+
+        $filters = $this->validatedIndexFilters($request, requireVisitPeriod: true);
+        $deletedCount = $bulkDeletePatients->execute($this->patientIndexQuery($filters));
+
+        return redirect()
+            ->route('patients.index')
+            ->with('success', "{$deletedCount} pasien pada periode kunjungan terpilih berhasil diarsipkan.");
+    }
+
+    protected function validatedIndexFilters(Request $request, bool $requireVisitPeriod = false): array
+    {
+        $visitPeriodRule = $requireVisitPeriod ? 'required' : 'nullable';
+
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
             'jenis_kelamin' => ['nullable', 'in:L,P'],
             'min_age' => ['nullable', 'integer', 'min:0', 'max:150'],
             'max_age' => ['nullable', 'integer', 'min:0', 'max:150', 'gte:min_age'],
-            'latest_visit_from' => ['nullable', 'date'],
-            'latest_visit_to' => ['nullable', 'date', 'after_or_equal:latest_visit_from'],
+            'visit_month' => [$visitPeriodRule, 'integer', 'min:1', 'max:12'],
+            'visit_year' => [$visitPeriodRule, 'integer', 'min:1900', 'max:2100'],
         ]);
 
         $filters = array_merge([
@@ -32,14 +65,18 @@ class PatientController extends Controller
             'jenis_kelamin' => '',
             'min_age' => '',
             'max_age' => '',
-            'latest_visit_from' => '',
-            'latest_visit_to' => '',
+            'visit_month' => '',
+            'visit_year' => '',
         ], $filters);
-        $filters = array_map(fn ($value) => $value ?? '', $filters);
 
+        return array_map(fn ($value) => $value ?? '', $filters);
+    }
+
+    protected function patientIndexQuery(array $filters)
+    {
         $search = trim((string) $filters['search']);
 
-        $patients = Patient::query()
+        return Patient::query()
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($innerQuery) use ($search) {
                     $innerQuery
@@ -52,31 +89,17 @@ class PatientController extends Controller
             ->when($filters['jenis_kelamin'] !== '', fn ($query) => $query->where('jenis_kelamin', $filters['jenis_kelamin']))
             ->when($filters['min_age'] !== '', fn ($query) => $query->where('umur', '>=', $filters['min_age']))
             ->when($filters['max_age'] !== '', fn ($query) => $query->where('umur', '<=', $filters['max_age']))
-            ->when($filters['latest_visit_from'] !== '', function ($query) use ($filters) {
-                $query->where($this->latestVisitDateSubquery(), '>=', $filters['latest_visit_from']);
-            })
-            ->when($filters['latest_visit_to'] !== '', function ($query) use ($filters) {
-                $query->where($this->latestVisitDateSubquery(), '<=', $filters['latest_visit_to']);
-            })
-            ->with(['latestMedicalRecord'])
-            ->withCount('medicalRecords')
-            ->withMax('medicalRecords as latest_visit_at', 'examined_at')
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+            ->when($filters['visit_month'] !== '' || $filters['visit_year'] !== '', function ($query) use ($filters) {
+                $query->whereHas('medicalRecords', function ($recordQuery) use ($filters) {
+                    if ($filters['visit_month'] !== '') {
+                        $recordQuery->whereMonth('examined_at', (int) $filters['visit_month']);
+                    }
 
-        return view('pages.patients.index', compact('patients', 'filters', 'search'));
-    }
-
-    protected function latestVisitDateSubquery(): \Closure
-    {
-        return function ($query): void {
-            $query
-                ->selectRaw('max(examined_at)')
-                ->from('medical_records')
-                ->whereColumn('medical_records.patient_id', 'patients.id')
-                ->whereNull('medical_records.deleted_at');
-        };
+                    if ($filters['visit_year'] !== '') {
+                        $recordQuery->whereYear('examined_at', (int) $filters['visit_year']);
+                    }
+                });
+            });
     }
 
     public function create(): View
@@ -105,9 +128,24 @@ class PatientController extends Controller
     {
         Gate::authorize('view', $patient);
 
-        $patient->load(['medicalRecords' => fn ($query) => $query->latest()->withCount('interventions')]);
+        $patient->load([
+            'medicalRecords' => fn ($query) => $query
+                ->orderBy('examined_at')
+                ->orderBy('created_at'),
+        ]);
 
-        return view('pages.patients.show', compact('patient'));
+        $currentYear = now()->year;
+        $visitSummary = [
+            'current_year' => $currentYear,
+            'current_year_count' => $patient->medicalRecords()
+                ->whereYear('examined_at', $currentYear)
+                ->count(),
+            'first_visit_at' => $patient->medicalRecords()
+                ->oldest('examined_at')
+                ->value('examined_at'),
+        ];
+
+        return view('pages.patients.show', compact('patient', 'visitSummary'));
     }
 
     public function edit(Patient $patient): View

@@ -1,4 +1,25 @@
 <x-layouts.app :title="'Daftar Pasien | PhysioAdmin'" :header="'Riwayat Rekam'">
+    @php
+        $visitMonths = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
+        $canBulkDelete = $filters['visit_month'] !== '' && $filters['visit_year'] !== '';
+        $selectedVisitPeriod = $canBulkDelete
+            ? ($visitMonths[(int) $filters['visit_month']] ?? 'Bulan').' '.$filters['visit_year']
+            : null;
+    @endphp
+
     <div class="space-y-6">
         <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <form
@@ -17,10 +38,10 @@
                 <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                     <h2 class="text-xl font-semibold text-slate-900">Daftar Pasien</h2>
-                        <p class="mt-1 text-sm text-slate-500">Cari pasien berdasarkan nama, No. RM, alamat, atau pekerjaan.</p>
+                        <p class="mt-1 text-sm text-slate-500">Cari pasien berdasarkan bulan dan tahun kunjungan.</p>
                     </div>
                     <div class="flex w-full flex-col gap-3 sm:flex-row md:max-w-xl">
-                        <input type="text" name="search" value="{{ $filters['search'] }}" placeholder="Cari pasien" @input="debounceSubmit()" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                        <input type="text" name="search" value="{{ $filters['search'] }}" placeholder="Nama / No. RM (opsional)" @input="debounceSubmit()" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                         <button type="submit" class="rounded-xl bg-[#2563eb] px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto">
                             Cari
                         </button>
@@ -45,12 +66,17 @@
                         <input id="max_age" name="max_age" type="number" min="0" max="150" value="{{ $filters['max_age'] }}" placeholder="150" @input="debounceSubmit()" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                     </div>
                     <div>
-                        <label for="latest_visit_from" class="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Kunjungan Dari</label>
-                        <input id="latest_visit_from" name="latest_visit_from" type="date" value="{{ $filters['latest_visit_from'] }}" @change="$refs.filters.requestSubmit()" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                        <label for="visit_month" class="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Bulan Kunjungan</label>
+                        <select id="visit_month" name="visit_month" @change="$refs.filters.requestSubmit()" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                            <option value="">Semua Bulan</option>
+                            @foreach ($visitMonths as $monthNumber => $monthName)
+                                <option value="{{ $monthNumber }}" @selected((string) $filters['visit_month'] === (string) $monthNumber)>{{ $monthName }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
-                        <label for="latest_visit_to" class="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Kunjungan Sampai</label>
-                        <input id="latest_visit_to" name="latest_visit_to" type="date" value="{{ $filters['latest_visit_to'] }}" @change="$refs.filters.requestSubmit()" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                        <label for="visit_year" class="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Tahun Kunjungan</label>
+                        <input id="visit_year" name="visit_year" type="number" min="1900" max="2100" value="{{ $filters['visit_year'] }}" placeholder="{{ now()->year }}" @input="debounceSubmit()" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                     </div>
                     <div class="flex items-end">
                         <a href="{{ route('patients.index') }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
@@ -59,6 +85,29 @@
                     </div>
                 </div>
             </form>
+
+            <div class="mt-4 flex justify-end">
+                @if ($canBulkDelete)
+                    <form
+                        method="POST"
+                        action="{{ route('patients.bulk-destroy.visit-period') }}"
+                        onsubmit="return confirm('Arsipkan semua pasien hasil filter kunjungan {{ $selectedVisitPeriod }}? Tindakan ini juga mengarsipkan rekam medis dan jadwal kontrol terkait.')"
+                    >
+                        @csrf
+                        @method('DELETE')
+                        @foreach (['search', 'jenis_kelamin', 'min_age', 'max_age', 'visit_month', 'visit_year'] as $filterKey)
+                            <input type="hidden" name="{{ $filterKey }}" value="{{ $filters[$filterKey] }}">
+                        @endforeach
+                        <button type="submit" class="rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-100">
+                            Hapus Hasil Filter Bulan Ini
+                        </button>
+                    </form>
+                @else
+                    <button type="button" disabled class="cursor-not-allowed rounded-xl border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-400">
+                        Pilih Bulan & Tahun untuk Hapus
+                    </button>
+                @endif
+            </div>
         </div>
 
         <div class="overflow-x-auto rounded-3xl bg-white shadow-sm ring-1 ring-slate-200">

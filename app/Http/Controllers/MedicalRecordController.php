@@ -10,6 +10,7 @@ use App\Models\Intervention;
 use App\Models\MedicalRecord;
 use App\Models\Patient;
 use App\Services\Pdf\MedicalRecordPdfExporterFactory;
+use App\Support\DateInput;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
@@ -115,6 +116,7 @@ class MedicalRecordController extends Controller
             'id' => null,
             'tgl' => '',
             'intervensi' => '',
+            'keluhan' => '',
             'hasil_evaluasi' => '',
             'paraf' => null,
             'paraf_url' => null,
@@ -126,8 +128,9 @@ class MedicalRecordController extends Controller
         $rows = $record->interventions->map(function (Intervention $intervention) {
             return [
                 'id' => $intervention->id,
-                'tgl' => optional($intervention->tgl)->format('Y-m-d'),
+                'tgl' => DateInput::display($intervention->tgl),
                 'intervensi' => $intervention->intervensi,
+                'keluhan' => $intervention->keluhan,
                 'hasil_evaluasi' => $intervention->hasil_evaluasi,
                 'paraf' => $intervention->paraf,
                 'paraf_url' => $intervention->paraf ? route('interventions.signature', $intervention) : null,
@@ -139,6 +142,7 @@ class MedicalRecordController extends Controller
                 'id' => null,
                 'tgl' => '',
                 'intervensi' => '',
+                'keluhan' => '',
                 'hasil_evaluasi' => '',
                 'paraf' => null,
                 'paraf_url' => null,

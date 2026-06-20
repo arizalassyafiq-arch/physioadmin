@@ -37,7 +37,7 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('records.create', $patient) }}" class="rounded-xl bg-[#2563eb] px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">Tambah Rekam Medis</a>
+                    <a href="{{ route('records.create', $patient) }}" class="rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-100">Tambah Rekam Medis</a>
                     <a href="{{ route('patients.edit', $patient) }}" class="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Edit Pasien</a>
                     <form method="POST" action="{{ route('patients.destroy', $patient) }}" onsubmit="return confirm('Hapus data pasien ini?')">
                         @csrf
@@ -54,13 +54,30 @@
                     <h2 class="text-lg font-semibold text-slate-900">Daftar Rekam Medis</h2>
                     <p class="text-sm text-slate-500">Seluruh histori assessment dan intervensi pasien.</p>
                 </div>
-                <a href="{{ route('records.create', $patient) }}" class="rounded-xl bg-[#2563eb] px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">Tambah RM</a>
+                <a href="{{ route('records.create', $patient) }}" class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100">Tambah RM</a>
+            </div>
+
+            <div class="mt-5 grid gap-3 md:grid-cols-2">
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-xs uppercase tracking-[0.22em] text-slate-400">Kunjungan Tahun Ini</p>
+                    <p class="mt-2 text-lg font-semibold text-slate-900">
+                        {{ $visitSummary['current_year_count'] }} kali
+                    </p>
+                    <p class="mt-1 text-xs text-slate-500">Tahun {{ $visitSummary['current_year'] }}</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-xs uppercase tracking-[0.22em] text-slate-400">Tanggal Kedatangan Pertama</p>
+                    <p class="mt-2 text-lg font-semibold text-slate-900">
+                        {{ $visitSummary['first_visit_at'] ? \Illuminate\Support\Carbon::parse($visitSummary['first_visit_at'])->translatedFormat('d M Y') : '-' }}
+                    </p>
+                </div>
             </div>
 
             <div class="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
-                <table class="min-w-[760px] divide-y divide-slate-200 text-sm">
+                <table class="min-w-[860px] divide-y divide-slate-200 text-sm">
                     <thead class="bg-slate-50 text-left text-slate-500">
                         <tr>
+                            <th class="px-4 py-3 font-medium">No</th>
                             <th class="px-4 py-3 font-medium">Tanggal</th>
                             <th class="px-4 py-3 font-medium">Keluhan Utama</th>
                             <th class="px-4 py-3 font-medium">Intervensi</th>
@@ -70,9 +87,10 @@
                     <tbody class="divide-y divide-slate-200 bg-white">
                         @forelse ($patient->medicalRecords as $record)
                             <tr>
+                                <td class="px-4 py-3 font-semibold text-slate-900">{{ $loop->iteration }}.</td>
                                 <td class="px-4 py-3">{{ optional($record->examined_at)->translatedFormat('d M Y') ?? $record->created_at->translatedFormat('d M Y') }}</td>
                                 <td class="px-4 py-3">{{ \Illuminate\Support\Str::limit($record->keluhan_utama, 80) }}</td>
-                                <td class="px-4 py-3">{{ $record->interventions_count }}</td>
+                                <td class="px-4 py-3">Intervensi {{ $loop->iteration }}</td>
                                 <td class="px-4 py-3">
                                     <div class="flex flex-wrap gap-3">
                                         <a href="{{ route('records.show', $record) }}" class="font-semibold text-blue-600 hover:text-blue-700">Lihat</a>
@@ -83,7 +101,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-4 py-12 text-center">
+                                <td colspan="5" class="px-4 py-12 text-center">
                                     <p class="font-semibold text-slate-800">Belum ada rekam medis untuk pasien ini.</p>
                                     <p class="mt-1 text-sm text-slate-500">Tambahkan assessment pertama agar histori klinis mulai tercatat.</p>
                                     <a href="{{ route('records.create', $patient) }}" class="mt-4 inline-flex rounded-xl bg-[#2563eb] px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">Isi Rekam Medis</a>

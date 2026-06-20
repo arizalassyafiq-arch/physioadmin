@@ -20,6 +20,7 @@ class SyncInterventionsAction
         foreach ($rows as $index => $row) {
             $hasContent = filled($row['tgl'] ?? null)
                 || filled($row['intervensi'] ?? null)
+                || filled($row['keluhan'] ?? null)
                 || filled($row['hasil_evaluasi'] ?? null)
                 || $request->hasFile("interventions.{$index}.paraf");
 
@@ -30,6 +31,7 @@ class SyncInterventionsAction
             $payload = [
                 'tgl' => $row['tgl'] ?? now()->toDateString(),
                 'intervensi' => $row['intervensi'] ?? '-',
+                'keluhan' => $row['keluhan'] ?? null,
                 'hasil_evaluasi' => $row['hasil_evaluasi'] ?? null,
             ];
 

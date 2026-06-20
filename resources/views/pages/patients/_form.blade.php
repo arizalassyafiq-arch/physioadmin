@@ -16,7 +16,7 @@
 </style>
 
 <div x-data="patientForm(
-    @js(old('tanggal_lahir', isset($patient?->tanggal_lahir) ? $patient->tanggal_lahir->format('Y-m-d') : '')),
+    @js(\App\Support\DateInput::display(old('tanggal_lahir', $patient->tanggal_lahir ?? ''))),
     @js($patient->umur ?? '')
 )">
     <div class="grid gap-5 md:grid-cols-2">
@@ -72,7 +72,13 @@
         </div>
         <div>
             <label for="tanggal_lahir" class="mb-2 block text-sm font-medium text-slate-700">Tanggal Lahir</label>
-            <input id="tanggal_lahir" name="tanggal_lahir" type="date" value="{{ old('tanggal_lahir', isset($patient?->tanggal_lahir) ? $patient->tanggal_lahir->format('Y-m-d') : '') }}" @input="syncAge($event.target.value)" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>
+            <x-date-input
+                id="tanggal_lahir"
+                name="tanggal_lahir"
+                :value="old('tanggal_lahir', $patient->tanggal_lahir ?? '')"
+                required
+                x-on:date-input-changed="syncAge($event.detail.value)"
+            />
             <x-field-error :messages="$errors->get('tanggal_lahir')" />
         </div>
         <div>

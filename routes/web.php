@@ -24,6 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/patients', [PatientController::class, 'index'])->name('patients.index');
     Route::get('/patients/create', [PatientController::class, 'create'])->name('patients.create');
     Route::post('/patients', [PatientController::class, 'store'])->name('patients.store');
+    Route::delete('/patients/bulk/visit-period', [PatientController::class, 'bulkDestroyByVisitPeriod'])->name('patients.bulk-destroy.visit-period');
     Route::get('/patients/{patient}', [PatientController::class, 'show'])->name('patients.show');
     Route::get('/patients/{patient}/edit', [PatientController::class, 'edit'])->name('patients.edit');
     Route::put('/patients/{patient}', [PatientController::class, 'update'])->name('patients.update');
@@ -45,6 +46,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/jadwal-pasien', [PatientControlScheduleController::class, 'index'])->name('schedule');
     Route::post('/jadwal-pasien', [PatientControlScheduleController::class, 'store'])->name('schedule.store');
+    Route::get('/jadwal-pasien/{patientControlSchedule}/edit', [PatientControlScheduleController::class, 'edit'])->name('schedule.edit');
+    Route::put('/jadwal-pasien/{patientControlSchedule}', [PatientControlScheduleController::class, 'update'])->name('schedule.update');
     Route::patch('/jadwal-pasien/{patientControlSchedule}/selesai', [PatientControlScheduleController::class, 'complete'])->name('schedule.complete');
     Route::delete('/jadwal-pasien/{patientControlSchedule}', [PatientControlScheduleController::class, 'destroy'])->name('schedule.destroy');
 

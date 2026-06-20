@@ -76,7 +76,6 @@
                 'Riwayat Imunisasi' => data_get($pediatricData, 'riwayat_imunisasi'),
             ],
             'Pemeriksaan Pediatri' => [
-                'Inspeksi Kesadaran Umum' => data_get($pediatricData, 'inspeksi_kesadaran_umum'),
                 'Pemeriksaan Gerak Dasar' => data_get($pediatricData, 'pemeriksaan_gerak_dasar'),
                 'Lingkar Kepala' => data_get($pediatricData, 'lingkar_kepala'),
                 'Tingkat Kesadaran' => $consciousnessLabels[data_get($pediatricData, 'tingkat_kesadaran')] ?? null,
@@ -179,6 +178,7 @@
                     <th>No</th>
                     <th>Tanggal</th>
                     <th>Intervensi</th>
+                    <th>Keluhan</th>
                     <th>Hasil Evaluasi</th>
                     <th>Paraf</th>
                 </tr>
@@ -189,12 +189,13 @@
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ optional($intervention->tgl)->translatedFormat('d M Y') }}</td>
                         <td>{{ $intervention->intervensi }}</td>
+                        <td>{{ $intervention->keluhan ?: '-' }}</td>
                         <td>{{ $intervention->hasil_evaluasi ?: '-' }}</td>
                         <td>{{ $intervention->paraf ? 'Tersedia' : '-' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5">Belum ada intervensi.</td>
+                        <td colspan="6">Belum ada intervensi.</td>
                     </tr>
                 @endforelse
             </tbody>

@@ -84,3 +84,7 @@ php artisan test
 php artisan view:cache
 npm run build
 ```
+
+## Deployment
+
+Checklist deploy production ada di [docs/deployment.md](docs/deployment.md).

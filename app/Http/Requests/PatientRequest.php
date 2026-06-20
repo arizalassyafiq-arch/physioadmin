@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\DateInput;
 use App\Support\PatientValidationRules;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,6 +24,13 @@ class PatientRequest extends FormRequest
     public function rules(PatientValidationRules $rules): array
     {
         return $rules->rules($this->route('patient'));
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'tanggal_lahir' => DateInput::normalize($this->input('tanggal_lahir')),
+        ]);
     }
 
     public function attributes(): array

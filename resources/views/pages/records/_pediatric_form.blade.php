@@ -1,6 +1,6 @@
 @php
     $pediatric = old('pediatric_data', $record->pediatric_data ?? []);
-    $currentPlan = old('rencana_intervensi', $record->rencana_intervensi ?: ['', '', '', '']);
+    $currentPlan = old('rencana_intervensi', $record->rencana_intervensi ?: ['']);
     $recordSections = [
         'identitas' => 'Identitas',
         'anamnesis' => 'Anamnesis',
@@ -10,13 +10,16 @@
         'icf' => 'ICF',
         'intervensi' => 'Intervensi',
     ];
-    $pediatricTextareas = [
-        'riwayat_prenatal' => 'Riwayat Pre Natal',
-        'riwayat_natal' => 'Riwayat Natal',
-        'riwayat_postnatal' => 'Riwayat Post Natal',
-        'riwayat_nicu_picu' => 'Riwayat NICU/PICU',
-        'riwayat_penyerta' => 'Riwayat Penyerta',
-        'riwayat_imunisasi' => 'Riwayat Imunisasi',
+    $anamnesisFields = [
+        ['source' => 'pediatric_data', 'field' => 'riwayat_prenatal', 'label' => 'Riwayat Pre Natal'],
+        ['source' => 'pediatric_data', 'field' => 'riwayat_natal', 'label' => 'Riwayat Natal'],
+        ['source' => 'pediatric_data', 'field' => 'riwayat_postnatal', 'label' => 'Riwayat Post Natal'],
+        ['source' => 'pediatric_data', 'field' => 'riwayat_nicu_picu', 'label' => 'Riwayat NICU/PICU'],
+        ['source' => 'record', 'field' => 'riwayat_penyakit_keluarga', 'label' => 'Riwayat Keluarga'],
+        ['source' => 'record', 'field' => 'riwayat_alergi', 'label' => 'Riwayat Alergi'],
+        ['source' => 'record', 'field' => 'riwayat_penggunaan_obat', 'label' => 'Riwayat Pengobatan'],
+        ['source' => 'pediatric_data', 'field' => 'riwayat_penyerta', 'label' => 'Riwayat Penyerta'],
+        ['source' => 'pediatric_data', 'field' => 'riwayat_imunisasi', 'label' => 'Riwayat Imunisasi'],
     ];
     $basicExamFields = [
         'inspeksi_statis' => 'Inspeksi Statis',
@@ -87,7 +90,7 @@
         <div class="mt-5 grid gap-4 md:grid-cols-2">
             <div>
                 <label for="examined_at" class="mb-2 block text-sm font-medium text-slate-700">Tanggal Pemeriksaan</label>
-                <input id="examined_at" name="examined_at" type="date" value="{{ old('examined_at', optional($record->examined_at)->format('Y-m-d') ?? now()->toDateString()) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>
+                <x-date-input id="examined_at" name="examined_at" :value="old('examined_at', $record->examined_at ?? now())" required />
                 <x-field-error :messages="$errors->get('examined_at')" />
             </div>
             <div>
@@ -142,28 +145,26 @@
 
     <section id="section-anamnesis" class="scroll-mt-24 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-6">
         <h3 class="text-lg font-semibold text-blue-900">Anamnesis</h3>
-        <div class="mt-5 grid gap-4 lg:grid-cols-2">
-            <div class="lg:col-span-2">
+        <div class="mt-5 space-y-4">
+            <div>
                 <label for="keluhan_utama" class="mb-2 block text-sm font-medium text-slate-700">Keluhan Utama</label>
                 <textarea id="keluhan_utama" name="keluhan_utama" rows="3" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>{{ old('keluhan_utama', $record->keluhan_utama ?? '') }}</textarea>
                 <x-field-error :messages="$errors->get('keluhan_utama')" />
             </div>
-            @foreach ($pediatricTextareas as $field => $label)
+            @foreach ($anamnesisFields as $item)
+                @php
+                    $field = $item['field'];
+                    $isPediatricField = $item['source'] === 'pediatric_data';
+                    $inputName = $isPediatricField ? "pediatric_data[$field]" : $field;
+                    $errorKey = $isPediatricField ? "pediatric_data.$field" : $field;
+                    $value = $isPediatricField
+                        ? old($errorKey, data_get($pediatric, $field, ''))
+                        : old($field, $record->{$field} ?? '');
+                @endphp
                 <div>
-                    <label for="pediatric_data_{{ $field }}" class="mb-2 block text-sm font-medium text-slate-700">{{ $label }}</label>
-                    <textarea id="pediatric_data_{{ $field }}" name="pediatric_data[{{ $field }}]" rows="3" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">{{ old("pediatric_data.$field", data_get($pediatric, $field, '')) }}</textarea>
-                    <x-field-error :messages="$errors->get("pediatric_data.$field")" />
-                </div>
-            @endforeach
-            @foreach ([
-                'riwayat_penyakit_keluarga' => 'Riwayat Keluarga',
-                'riwayat_alergi' => 'Riwayat Alergi',
-                'riwayat_penggunaan_obat' => 'Riwayat Penggunaan Obat',
-            ] as $field => $label)
-                <div>
-                    <label for="{{ $field }}" class="mb-2 block text-sm font-medium text-slate-700">{{ $label }}</label>
-                    <textarea id="{{ $field }}" name="{{ $field }}" rows="3" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">{{ old($field, $record->{$field} ?? '') }}</textarea>
-                    <x-field-error :messages="$errors->get($field)" />
+                    <label for="{{ $isPediatricField ? 'pediatric_data_'.$field : $field }}" class="mb-2 block text-sm font-medium text-slate-700">{{ $item['label'] }}</label>
+                    <textarea id="{{ $isPediatricField ? 'pediatric_data_'.$field : $field }}" name="{{ $inputName }}" rows="3" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">{{ $value }}</textarea>
+                    <x-field-error :messages="$errors->get($errorKey)" />
                 </div>
             @endforeach
         </div>
@@ -172,11 +173,6 @@
     <section id="section-dasar" class="scroll-mt-24 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-6">
         <h3 class="text-lg font-semibold text-blue-900">Pemeriksaan Dasar FT</h3>
         <div class="mt-5 grid gap-4 lg:grid-cols-2">
-            <div>
-                <label for="pediatric_data_inspeksi_kesadaran_umum" class="mb-2 block text-sm font-medium text-slate-700">Inspeksi Kesadaran Umum</label>
-                <input id="pediatric_data_inspeksi_kesadaran_umum" name="pediatric_data[inspeksi_kesadaran_umum]" type="text" value="{{ old('pediatric_data.inspeksi_kesadaran_umum', data_get($pediatric, 'inspeksi_kesadaran_umum', '')) }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
-                <x-field-error :messages="$errors->get('pediatric_data.inspeksi_kesadaran_umum')" />
-            </div>
             @foreach ($basicExamFields as $field => $label)
                 <div>
                     <label for="{{ $field }}" class="mb-2 block text-sm font-medium text-slate-700">{{ $label }}</label>
@@ -314,14 +310,10 @@
 
     <section class="scroll-mt-24 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-6">
         <h3 class="text-lg font-semibold text-blue-900">Rencana Intervensi Fisioterapi</h3>
-        <div class="mt-5 grid gap-4 md:grid-cols-2">
-            @foreach (range(0, 3) as $index)
-                <div>
-                    <label for="rencana_intervensi_{{ $index }}" class="mb-2 block text-sm font-medium text-slate-700">Rencana {{ $index + 1 }}</label>
-                    <input id="rencana_intervensi_{{ $index }}" name="rencana_intervensi[]" type="text" value="{{ $currentPlan[$index] ?? '' }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
-                    <x-field-error :messages="$errors->get('rencana_intervensi.'.$index)" />
-                </div>
-            @endforeach
+        <div class="mt-5">
+            <label for="rencana_intervensi_0" class="mb-2 block text-sm font-medium text-slate-700">Rencana</label>
+            <input id="rencana_intervensi_0" name="rencana_intervensi[]" type="text" value="{{ $currentPlan[0] ?? '' }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+            <x-field-error :messages="$errors->get('rencana_intervensi.0')" />
         </div>
     </section>
 
@@ -329,7 +321,7 @@
         <div class="flex flex-col gap-4 border-b border-slate-200 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
                 <h3 class="text-lg font-semibold text-blue-900">Pelaksanaan & Evaluasi Intervensi Fisioterapi</h3>
-                <p class="mt-1 text-sm text-slate-500">Catat tanggal, intervensi, hasil evaluasi, dan paraf fisioterapis.</p>
+                <p class="mt-1 text-sm text-slate-500">Catat tanggal, intervensi, keluhan, hasil evaluasi, dan paraf fisioterapis.</p>
             </div>
             <button type="button" @click="addRow" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                 Tambah Baris
@@ -347,12 +339,13 @@
             </div>
         @endif
         <div class="overflow-x-auto">
-            <table class="min-w-[980px] divide-y divide-slate-200 text-sm">
+            <table class="min-w-[1180px] divide-y divide-slate-200 text-sm">
                 <thead class="bg-slate-50 text-left text-slate-500">
                     <tr>
                         <th class="px-4 py-3 font-medium">No</th>
                         <th class="px-4 py-3 font-medium">TGL</th>
                         <th class="px-4 py-3 font-medium">Intervensi</th>
+                        <th class="px-4 py-3 font-medium">Keluhan</th>
                         <th class="px-4 py-3 font-medium">Hasil Evaluasi</th>
                         <th class="px-4 py-3 font-medium">Paraf</th>
                         <th class="px-4 py-3 font-medium">Aksi</th>
@@ -364,10 +357,21 @@
                             <td class="px-4 py-4 align-top font-semibold text-slate-900" x-text="index + 1"></td>
                             <td class="px-4 py-4 align-top">
                                 <input type="hidden" :name="`interventions[${index}][id]`" x-model="row.id">
-                                <input type="date" :name="`interventions[${index}][tgl]`" x-model="row.tgl" class="w-40 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                <div class="relative w-44">
+                                    <input type="text" inputmode="numeric" placeholder="mm/dd/yyyy" :name="`interventions[${index}][tgl]`" x-model="row.tgl" class="w-full rounded-xl border border-slate-300 px-3 py-2 pr-10 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                    <input type="date" :value="window.toIsoDate(row.tgl)" @change="row.tgl = window.formatDateFromIso($event.target.value)" class="absolute border-0 p-0" style="right: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none;" tabindex="-1" aria-hidden="true">
+                                    <button type="button" @click="const picker = $el.previousElementSibling; picker.value = window.toIsoDate(row.tgl); if (picker.showPicker) { picker.showPicker(); } else { picker.click(); }" class="absolute right-1 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-blue-700" aria-label="Pilih tanggal">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-4 w-4" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                             <td class="px-4 py-4 align-top">
                                 <input type="text" :name="`interventions[${index}][intervensi]`" x-model="row.intervensi" class="w-full min-w-56 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                            </td>
+                            <td class="px-4 py-4 align-top">
+                                <input type="text" :name="`interventions[${index}][keluhan]`" x-model="row.keluhan" class="w-full min-w-56 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                             </td>
                             <td class="px-4 py-4 align-top">
                                 <input type="text" :name="`interventions[${index}][hasil_evaluasi]`" x-model="row.hasil_evaluasi" class="w-full min-w-56 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
@@ -389,7 +393,7 @@
                     </template>
                     <template x-if="rows.length === 0">
                         <tr>
-                            <td colspan="6" class="px-4 py-10 text-center text-sm text-slate-500">
+                            <td colspan="7" class="px-4 py-10 text-center text-sm text-slate-500">
                                 Belum ada baris intervensi. Klik Tambah Baris untuk mencatat intervensi.
                             </td>
                         </tr>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\DateInput;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -80,7 +81,6 @@ class MedicalRecordRequest extends FormRequest
             'pediatric_data.riwayat_nicu_picu' => ['nullable', 'string'],
             'pediatric_data.riwayat_penyerta' => ['nullable', 'string'],
             'pediatric_data.riwayat_imunisasi' => ['nullable', 'string'],
-            'pediatric_data.inspeksi_kesadaran_umum' => ['nullable', 'string'],
             'pediatric_data.pemeriksaan_gerak_dasar' => ['nullable', 'string'],
             'pediatric_data.lingkar_kepala' => ['bail', 'nullable', 'numeric', 'between:20,80', 'regex:/^\d{1,2}(\.\d)?$/'],
             'pediatric_data.tingkat_kesadaran' => ['nullable', Rule::in([
@@ -102,11 +102,32 @@ class MedicalRecordRequest extends FormRequest
                     $this->route('record')?->id ?? 0
                 ),
             ],
-            'interventions.*.tgl' => ['nullable', 'date', 'after_or_equal:examined_at', 'before_or_equal:today'],
+            'interventions.*.tgl' => ['nullable', 'date', 'after_or_equal:examined_at'],
             'interventions.*.intervensi' => ['nullable', 'string'],
+            'interventions.*.keluhan' => ['nullable', 'string'],
             'interventions.*.hasil_evaluasi' => ['nullable', 'string'],
             'interventions.*.paraf' => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:2048'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $interventions = collect($this->input('interventions', []))
+            ->map(function ($row) {
+                if (! is_array($row)) {
+                    return $row;
+                }
+
+                $row['tgl'] = DateInput::normalize($row['tgl'] ?? null);
+
+                return $row;
+            })
+            ->all();
+
+        $this->merge([
+            'examined_at' => DateInput::normalize($this->input('examined_at')),
+            'interventions' => $interventions,
+        ]);
     }
 
     public function attributes(): array
@@ -131,6 +152,7 @@ class MedicalRecordRequest extends FormRequest
             'pediatric_data.lingkar_kepala' => 'lingkar kepala',
             'pediatric_data.tingkat_kesadaran' => 'tingkat kesadaran',
             'interventions.*.tgl' => 'tanggal intervensi',
+            'interventions.*.keluhan' => 'keluhan intervensi',
         ];
     }
 

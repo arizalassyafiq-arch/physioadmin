@@ -81,7 +81,6 @@
                         'Riwayat Imunisasi' => data_get($pediatricData, 'riwayat_imunisasi'),
                     ],
                     'Pemeriksaan Pediatri' => [
-                        'Inspeksi Kesadaran Umum' => data_get($pediatricData, 'inspeksi_kesadaran_umum'),
                         'Pemeriksaan Gerak Dasar' => data_get($pediatricData, 'pemeriksaan_gerak_dasar'),
                         'Pemeriksaan Khusus' => data_get($pediatricData, 'pemeriksaan_khusus'),
                         'Fisioterapis' => data_get($pediatricData, 'fisioterapis'),
@@ -179,6 +178,7 @@
                             <th class="px-4 py-3 font-medium">No</th>
                             <th class="px-4 py-3 font-medium">Tanggal</th>
                             <th class="px-4 py-3 font-medium">Intervensi</th>
+                            <th class="px-4 py-3 font-medium">Keluhan</th>
                             <th class="px-4 py-3 font-medium">Hasil Evaluasi</th>
                             <th class="px-4 py-3 font-medium">Paraf</th>
                         </tr>
@@ -189,6 +189,7 @@
                                 <td class="px-4 py-4">{{ $loop->iteration }}</td>
                                 <td class="px-4 py-4">{{ optional($intervention->tgl)->translatedFormat('d M Y') }}</td>
                                 <td class="px-4 py-4">{{ $intervention->intervensi }}</td>
+                                <td class="px-4 py-4">{{ $intervention->keluhan ?: '-' }}</td>
                                 <td class="px-4 py-4">{{ $intervention->hasil_evaluasi ?: '-' }}</td>
                                 <td class="px-4 py-4">
                                     @if ($intervention->paraf)
@@ -200,7 +201,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-10 text-center text-slate-500">Belum ada data intervensi.</td>
+                                <td colspan="6" class="px-4 py-10 text-center text-slate-500">Belum ada data intervensi.</td>
                             </tr>
                         @endforelse
                     </tbody>
